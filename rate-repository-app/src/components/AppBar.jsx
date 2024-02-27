@@ -1,7 +1,12 @@
 import { View, StyleSheet, Pressable, ScrollView } from "react-native";
-import Constants from "expo-constants";
 import { Link } from "react-router-native";
+import { useApolloClient, useQuery } from "@apollo/client";
+import Constants from "expo-constants";
+
+import { GET_USER } from "../graphql/queries";
 import Text from "./Text";
+import useAuthStorage from "../hooks/useAuthStorage";
+import { useEffect, useState } from "react";
 
 const styles = StyleSheet.create({
   container: {
@@ -47,12 +52,34 @@ const SignInElement = () => {
   );
 };
 
+const SignOutElement = () => {
+  const authStorage = useAuthStorage();
+  const apolloClient = useApolloClient();
+
+  const onPressFunction = () => {
+    authStorage.removeAccessToken();
+    apolloClient.resetStore();
+  };
+  return (
+    <Pressable onPress={onPressFunction}>
+      <Text style={styles.containerItems}>Sign Out</Text>
+    </Pressable>
+  );
+};
+
 const AppBar = () => {
+  const [user, setUser] = useState(null);
+  const { data, loading, error } = useQuery(GET_USER);
+
+  useEffect(() => {
+    if (data) setUser(data.me);
+  }, [data]);
   return (
     <View style={styles.container}>
       <ScrollView style={{ flex: 1 }} horizontal>
         <NameElement />
-        <SignInElement />
+        {!user && <SignInElement />}
+        {user && <SignOutElement />}
       </ScrollView>
     </View>
   );
