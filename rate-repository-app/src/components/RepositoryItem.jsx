@@ -1,6 +1,7 @@
-import { View, StyleSheet, Image } from "react-native";
-
+import { View, StyleSheet, Image, Pressable } from "react-native";
+import Comments from "./Comments";
 import Text from "./Text";
+import { useNavigate } from "react-router-native";
 
 const styles = StyleSheet.create({
   container: {
@@ -50,59 +51,88 @@ const LanguageBox = ({ content }) => {
   );
 };
 
-const RepositoryItem = ({ item }) => {
+const SingleRepositoryElement = ({ url }) => {
+  const onPressEvent = () => {
+    console.log(url);
+    Linking.openURL(url);
+  };
+  return (
+    <Pressable onPress={onPressEvent} style={styles.button}>
+      <Text style={styles.text}>Open in GitHub</Text>
+    </Pressable>
+  );
+};
+
+const RepositoryItem = ({ item, singleRepositoryView = false }) => {
+  const navigate = useNavigate();
   const getImageUrl = () => {
     return item.ownerAvatarUrl;
   };
 
   const formatNum = (num) => {
     if (num > 1000) {
-      const newNum = Math.round(num / 100).toString();
-      const start = newNum.slice(0, 2);
-      const end = newNum.slice(2);
-      return `${start},${end}k`;
+      const newNum = Math.round(num / 100);
+      const start = Math.floor(newNum / 10);
+      const remainder = newNum % 10;
+      const end = remainder !== 0 ? `.${remainder}` : "";
+      return `${start}${end}k`;
     }
-    return num;
+    return num.toString();
+  };
+
+  const onPressEvent = async () => {
+    console.log(`/${item.id}`);
+    navigate(`/${item.id}`);
   };
 
   return (
     <>
-      <View style={{ display: "flex", flexDirection: "row" }}>
-        <View>
-          <Image
-            style={styles.tinyImage}
-            source={{
-              uri: getImageUrl(),
-            }}
-          />
-        </View>
-        <View style={{ display: "flex", flex: 1 }}>
-          <Text
-            fontWeight="bold"
-            fontSize="subheading"
-            style={styles.textStyle}
-          >
-            {item.fullName}
-          </Text>
+      <Pressable onPress={onPressEvent}>
+        <View testID="repositoryItem">
+          <View style={{ display: "flex", flexDirection: "row" }}>
+            <View>
+              <Image
+                style={styles.tinyImage}
+                source={{
+                  uri: getImageUrl(),
+                }}
+              />
+            </View>
+            <View style={{ display: "flex", flex: 1 }}>
+              <Text
+                fontWeight="bold"
+                fontSize="subheading"
+                style={styles.textStyle}
+              >
+                {item.fullName}
+              </Text>
 
-          <Text color="textSecondary" style={styles.textStyle}>
-            {item.description}
-          </Text>
-          <LanguageBox content={item.language} />
+              <Text color="textSecondary" style={styles.textStyle}>
+                {item.description}
+              </Text>
+              <LanguageBox content={item.language} />
+            </View>
+          </View>
+          <View
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "space-around",
+            }}
+          >
+            <TinyFlexContent content={formatNum(item.stargazersCount)} />
+            <TinyFlexContent content={formatNum(item.forksCount)} />
+            <TinyFlexContent content={formatNum(item.reviewCount)} />
+            <TinyFlexContent content={item.ratingAverage} />
+          </View>
         </View>
-      </View>
-      <View
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          justifyContent: "space-around",
-        }}
-      >
-        <TinyFlexContent content={formatNum(item.stargazersCount)} />
-        <TinyFlexContent content={formatNum(item.forksCount)} />
-        <TinyFlexContent content={formatNum(item.reviewCount)} />
-        <TinyFlexContent content={item.ratingAverage} />
-      </View>
+      </Pressable>
+      {singleRepositoryView && (
+        <>
+          <SingleRepositoryElement url={item.url} />
+          <Comments id={item.id} />
+        </>
+      )}
     </>
   );
 };
