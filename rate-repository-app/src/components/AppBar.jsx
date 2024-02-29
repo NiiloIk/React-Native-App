@@ -44,10 +44,10 @@ const NameElement = () => {
   );
 };
 
-const SignInElement = () => {
+const NavBarElement = ({ link, text }) => {
   return (
-    <Link to="/register">
-      <Text style={styles.containerItems}>Sign in</Text>
+    <Link to={`${link}`}>
+      <Text style={styles.containerItems}>{text}</Text>
     </Link>
   );
 };
@@ -78,8 +78,19 @@ const AppBar = () => {
     <View style={styles.container}>
       <ScrollView style={{ flex: 1 }} horizontal>
         <NameElement />
-        {!user && <SignInElement />}
-        {user && <SignOutElement />}
+        {!user && (
+          <>
+            <NavBarElement text="Sign in" link="/register" />
+            <NavBarElement text="Sign up" link="/signUp" />
+          </>
+        )}
+        {user && (
+          <>
+            <NavBarElement text="Create a review" link="/review" />
+            <NavBarElement text="My reviews" link="/userReviews" />
+            <SignOutElement />
+          </>
+        )}
       </ScrollView>
     </View>
   );

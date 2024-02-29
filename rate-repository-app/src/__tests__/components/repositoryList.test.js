@@ -1,5 +1,5 @@
 import { RepositoryListContainer } from "../../components/RepositoryList";
-import { render, fireEvent, screen } from "@testing-library/react-native";
+import { render, screen } from "@testing-library/react-native";
 
 describe("RepositoryList", () => {
   describe("RepositoryListContainer", () => {

@@ -2,6 +2,7 @@ import { View, StyleSheet, Image, Pressable } from "react-native";
 import Comments from "./Comments";
 import Text from "./Text";
 import { useNavigate } from "react-router-native";
+import * as Linking from "expo-linking";
 
 const styles = StyleSheet.create({
   container: {
@@ -12,6 +13,14 @@ const styles = StyleSheet.create({
   },
   text: {
     color: "white",
+  },
+  button: {
+    padding: 10,
+    margin: 6,
+    backgroundColor: "#2b4b8b",
+    borderRadius: 4,
+    display: "flex",
+    alignItems: "center",
   },
   textStyle: {
     flexShrink: 1,
@@ -31,11 +40,11 @@ const styles = StyleSheet.create({
   },
 });
 
-const TinyFlexContent = ({ content }) => {
+const TinyFlexContent = ({ content, text }) => {
   return (
     <View style={styles.tinyFlexContent}>
       <Text fontWeight="bold">{content}</Text>
-      <Text color="textSecondary">Stars</Text>
+      <Text color="textSecondary">{text}</Text>
     </View>
   );
 };
@@ -81,12 +90,11 @@ const RepositoryItem = ({ item, singleRepositoryView = false }) => {
   };
 
   const onPressEvent = async () => {
-    console.log(`/${item.id}`);
     navigate(`/${item.id}`);
   };
 
   return (
-    <>
+    <View>
       <Pressable onPress={onPressEvent}>
         <View testID="repositoryItem">
           <View style={{ display: "flex", flexDirection: "row" }}>
@@ -120,10 +128,19 @@ const RepositoryItem = ({ item, singleRepositoryView = false }) => {
               justifyContent: "space-around",
             }}
           >
-            <TinyFlexContent content={formatNum(item.stargazersCount)} />
-            <TinyFlexContent content={formatNum(item.forksCount)} />
-            <TinyFlexContent content={formatNum(item.reviewCount)} />
-            <TinyFlexContent content={item.ratingAverage} />
+            <TinyFlexContent
+              content={formatNum(item.stargazersCount)}
+              text="stars"
+            />
+            <TinyFlexContent
+              content={formatNum(item.forksCount)}
+              text="forks"
+            />
+            <TinyFlexContent
+              content={formatNum(item.reviewCount)}
+              text="reviews"
+            />
+            <TinyFlexContent content={item.ratingAverage} text="rating" />
           </View>
         </View>
       </Pressable>
@@ -133,7 +150,7 @@ const RepositoryItem = ({ item, singleRepositoryView = false }) => {
           <Comments id={item.id} />
         </>
       )}
-    </>
+    </View>
   );
 };
 

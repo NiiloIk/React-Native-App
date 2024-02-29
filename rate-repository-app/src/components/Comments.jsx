@@ -30,7 +30,15 @@ const styles = StyleSheet.create({
 
 const ItemSeparator = () => <View style={styles.separator} />;
 
-const ReviewItem = ({ review }) => {
+export const ReviewItem = ({ review }) => {
+  const getDate = () => {
+    const dateList = review.createdAt.split("-");
+    const year = dateList[0];
+    const month = dateList[1];
+    const day = dateList[2].split("T")[0];
+
+    return `${day}.${month}.${year}`;
+  };
   return (
     <View style={{ display: "flex", flexDirection: "row" }}>
       <View style={styles.rating}>
@@ -46,7 +54,7 @@ const ReviewItem = ({ review }) => {
         <Text fontSize="subheading" fontWeight="bold">
           {review.user.username}
         </Text>
-        <Text color="textSecondary">{review.createdAt}</Text>
+        <Text color="textSecondary">{getDate()}</Text>
         <Text style={styles.textStyle}>{review.text}</Text>
       </View>
     </View>
@@ -57,11 +65,9 @@ const Comments = ({ id }) => {
   const { data, error, loading } = useQuery(GET_REVIEWS, {
     variables: { repositoryId: id },
   });
-  console.log("id", id, "data", data);
 
   if (!data) return null;
   const reviews = data.repository.reviews.edges;
-  console.log(reviews);
 
   return (
     <FlatList

@@ -3,8 +3,16 @@ import { gql } from "@apollo/client";
 import { REPOSITORY_BASE_FIELDS } from "./fragments";
 
 export const GET_REPOSITORIES = gql`
-  query fetchRepositories {
-    repositories {
+  query fetchRepositories(
+    $orderBy: AllRepositoriesOrderBy
+    $orderDirection: OrderDirection
+    $searchKeyword: String
+  ) {
+    repositories(
+      orderBy: $orderBy
+      orderDirection: $orderDirection
+      searchKeyword: $searchKeyword
+    ) {
       edges {
         node {
           ...repositoryBaseFields
@@ -49,10 +57,24 @@ export const GET_REVIEWS = gql`
 `;
 
 export const GET_USER = gql`
-  query fetchUser {
+  query fetchUser($withReviews: Boolean = false) {
     me {
       id
       username
+      reviews @include(if: $withReviews) {
+        edges {
+          node {
+            id
+            text
+            rating
+            createdAt
+            repository {
+              fullName
+            }
+            repositoryId
+          }
+        }
+      }
     }
   }
 `;

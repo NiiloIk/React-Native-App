@@ -7,6 +7,7 @@ const SingleRepositoryPage = () => {
   const { id } = useParams();
   const { data, error, loading } = useQuery(GET_REPOSITORY, {
     variables: { repositoryId: id },
+    fetchPolicy: "cache-and-network",
   });
 
   if (!data) return null;

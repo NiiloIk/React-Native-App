@@ -1,21 +1,28 @@
 import FormikTextInput from "./FormikTextInput";
-import useSignIn from "../hooks/useSignIn";
 import Text from "./Text";
 
 import { useNavigate } from "react-router-native";
 import { View, Pressable } from "react-native";
 import { Formik } from "formik";
 import * as yup from "yup";
+import { useMutation } from "@apollo/client";
+import { CREATE_USER } from "../graphql/mutations";
 
 const validationSchema = yup.object().shape({
   username: yup
     .string()
-    .min(4, "Username must be longer than 4 characters")
+    .min(5, "username must be longer than 5 characters")
+    .max(30, "username must be shorter than 30 characters")
     .required("Username is required"),
   password: yup
     .string()
-    .min(4, "Password must be longer than 4 characters")
+    .min(5, "Password must be longer than 5 characters")
+    .max(50, "Password must be shorter than 60 characters")
     .required("Password is required"),
+  passwordConfirmation: yup
+    .string()
+    .oneOf([yup.ref("password"), null], "Passwords must match")
+    .required("Password confirmation is required"),
 });
 
 const styles = {
@@ -41,6 +48,11 @@ const SignInForm = ({ onSubmit }) => {
         placeholder="password"
         secureTextEntry={true}
       />
+      <FormikTextInput
+        name="passwordConfirmation"
+        placeholder="password confirmation"
+        secureTextEntry={true}
+      />
       <Pressable style={styles.button} onPress={onSubmit}>
         <Text style={styles.text}>Sign in</Text>
       </Pressable>
@@ -48,16 +60,21 @@ const SignInForm = ({ onSubmit }) => {
   );
 };
 
-const SignIn = () => {
-  const [signIn] = useSignIn();
+const SignUp = () => {
+  const [signUp] = useMutation(CREATE_USER);
   const navigate = useNavigate();
 
   const onSubmit = async (values) => {
-    const { username, password } = values;
-
+    const { username, password, passwordConfirmation } = values;
     try {
-      await signIn({ username, password });
-      navigate("/");
+      if (password === passwordConfirmation) {
+        await signUp({
+          variables: {
+            user: { username, password },
+          },
+        });
+        navigate("/");
+      }
     } catch (e) {
       console.log(e);
     }
@@ -65,7 +82,7 @@ const SignIn = () => {
   return (
     <>
       <Formik
-        initialValues={{ username: "", password: "" }}
+        initialValues={{ username: "", password: "", passwordConfirmation: "" }}
         onSubmit={onSubmit}
         validationSchema={validationSchema}
       >
@@ -75,4 +92,4 @@ const SignIn = () => {
   );
 };
 
-export default SignIn;
+export default SignUp;
